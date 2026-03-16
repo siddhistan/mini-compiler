@@ -1,0 +1,36 @@
+// Program to test lexer 
+
+/* Variable declarations */
+int x = 5;
+int y = 12;
+float z = 2.5;
+double d = -0.75;
+char ch;
+
+/* Arithmetic and assignment */
+x = x + y * 2;
+z = z / 2.0;
+d = d + .25;
+
+/* Logical and relational operators */
+if (x >= 10 && y != 0 || z < 5.0) {
+    x = x - 1;
+}
+
+/* Bitwise operators */
+x = x & y;
+y = y | 3;
+
+/* Shift operators */
+x = x << 1;
+y = y >> 2;
+
+// Nested block 
+if (x > 0) {
+    if (y <= 20) {
+        return x;
+    }
+}
+
+// Intentional junk characters for us to test error handling by the lexer
+@ # $
