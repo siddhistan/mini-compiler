@@ -1,0 +1,19 @@
+int x;
+int y;
+float z;
+x = 10;
+y = 5;
+z = 3.14;
+if (x > y) {
+    x = x + 1;
+    printf("%d", x);
+}
+while (y > 0) {
+    y = y - 1;
+}
+if (x == y) {
+    z = z * 2.0;
+} else {
+    z = z + 1.0;
+}
+return x;
