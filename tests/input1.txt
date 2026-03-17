@@ -8,12 +8,15 @@ int main() {
     int a = 10;
     float b = -3.14;
     double c = .25;
-    char d;
+    char d = 'x';        // character literal
 
     a = a + 5;
     b = b * 2.0;
 
+    printf("Value of a is: %d\n", a);   // string literal
+    printf("Value of b is: %f\n", b);   // string literal
+
     if (a >= 10 && b != 0) {
-        return a;
+        return 'A';      // character literal
     }
 }

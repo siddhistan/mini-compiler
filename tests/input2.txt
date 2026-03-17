@@ -5,7 +5,7 @@ int x = 5;
 int y = 12;
 float z = 2.5;
 double d = -0.75;
-char ch;
+char ch = 'A';     // character literal
 
 /* Arithmetic and assignment */
 x = x + y * 2;
@@ -14,6 +14,7 @@ d = d + .25;
 
 /* Logical and relational operators */
 if (x >= 10 && y != 0 || z < 5.0) {
+    printf("Value of x is %d\n", x);   // string literal
     x = x - 1;
 }
 
@@ -21,16 +22,16 @@ if (x >= 10 && y != 0 || z < 5.0) {
 x = x & y;
 y = y | 3;
 
-/* Shift operators */
-x = x << 1;
-y = y >> 2;
+/* Character update */
+ch = 'z';
 
-// Nested block 
+/* Nested block */
 if (x > 0) {
     if (y <= 20) {
+        printf("Returning value\n");   // string literal
         return x;
     }
 }
 
-// Intentional junk characters for us to test error handling by the lexer
+//  junk characters for us to test error handling by the lexer
 @ # $

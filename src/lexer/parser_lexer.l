@@ -5,6 +5,7 @@
     #include "parser_visualizer.tab.h"
 %}
 
+%option yylineno
 %x COMMENT  
 
 %%
