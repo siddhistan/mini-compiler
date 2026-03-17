@@ -15,5 +15,7 @@ if (x == y) {
     z = z * 2.0;
 } else {
     z = z + 1.0;
+    y+=10;
+    z/=9;
 }
 return x;

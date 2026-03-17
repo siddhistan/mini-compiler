@@ -1,9 +1,9 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
-
 int yylex();
 void yyerror(const char *s);
+extern int yylineno;
 %}
 
 %union{
@@ -36,6 +36,7 @@ void yyerror(const char *s);
 %nonassoc ELSE
 
 %%
+
 program:
         statement_list
         ;
@@ -61,18 +62,14 @@ statement:
 
 io_stmt:
         IO '(' expr ')' ';'
-        {
-            printf("IO Statement\n");
-        }
+        { printf("IO Statement with 1 argument (line %d)\n", yylineno); }          
         | IO '(' expr ',' expr ')' ';'
-        { printf("IO Statement\n"); }
+        { printf("IO Statement with 2 arguments (line %d)\n", yylineno); }        
         ;
 
 declaration:
-          type ID ';'
-        {
-            printf("Declaration: %s %s\n",$1,$2);
-        }
+        type ID ';'
+        { printf("Declaration: %s %s\n", $1, $2); }
         ;
 
 expr:
@@ -91,59 +88,54 @@ expr:
         | expr AND expr
         | expr OR expr
         | '!' expr
-        | '~' expr                       /* bitwise NOT */
-        | expr '^' expr                  /* bitwise XOR */
-        | expr '&' expr                  /* bitwise AND */
-        | expr '|' expr                  /* bitwise OR */
-        | '&' expr                        /* address-of */
+        | '~' expr
+        | expr '^' expr
+        | expr '&' expr
+        | expr '|' expr
+        | '&' expr
         | '(' expr ')'
-        | ID                          { printf("Identifier: %s\n", $1); }
-        | INT_NUM                     { printf("Integer: %s\n", $1); }
-        | FLOAT_NUM                   { printf("Float: %s\n", $1); }
+        | ID            { printf("Identifier: %s\n", $1); }
+        | INT_NUM       { printf("Integer: %s\n", $1); }
+        | FLOAT_NUM     { printf("Float: %s\n", $1); }
         | INC expr
         | DEC expr
         | expr INC
         | expr DEC
-        | STRING                      { printf("String: %s\n", $1); }
-        | CHAR_LIT                    { printf("Char literal: %s\n", $1); }
+        | STRING        { printf("String: %s\n", $1); }
+        | CHAR_LIT      { printf("Char literal: %s\n", $1); }
         ;
 
 return_stmt:
         RETURN expr ';'
-        {
-            printf("Return Statement\n");
-        }
+        { printf("Return Statement: (line %d)\n", yylineno); }
         ;
 
 if_stmt:
         IF '(' expr ')' block %prec LOWER_THAN_ELSE
-           { printf("If Statement\n"); }
-
+           { printf("If Statement (line %d)\n", yylineno); }
         | IF '(' expr ')' block ELSE block
-           { printf("If-Else Statement\n"); }
+           { printf("If-Else Statement (line %d)\n", yylineno); }
         ;
 
 while_stmt:
         WHILE '(' expr ')' block
-        {
-            printf("While Statement\n");
-        }
+        { printf("While Statement (line %d)\n", yylineno); }
         ;
 
 assignment:
-           ID '=' expr ';'          { printf("Assignment: %s\n", $1); }
-        | ID ADD_ASSIGN expr ';'    { printf("Compound Assignment: %s +=\n", $1); }
-        | ID SUB_ASSIGN expr ';'     { printf("Compound Assignment: %s -=\n", $1); }
-        | ID MUL_ASSIGN expr ';'    { printf("Compound Assignment: %s *=\n", $1); }
-        | ID DIV_ASSIGN expr ';'     { printf("Compound Assignment: %s /=\n", $1); }
-        | ID MOD_ASSIGN expr ';'    { printf("Compound Assignment: %s %%=\n", $1); }
-           ;
+        ID '=' expr ';'         { printf("Assignment: %s (line %d)\n", $1, yylineno); }           
+        | ID ADD_ASSIGN expr ';'{ printf("Compound Assignment: %s += (line %d)\n", $1, yylineno); } 
+        | ID SUB_ASSIGN expr ';'{ printf("Compound Assignment: %s -= (line %d)\n", $1, yylineno); } 
+        | ID MUL_ASSIGN expr ';'{ printf("Compound Assignment: %s *= (line %d)\n", $1, yylineno); } 
+        | ID DIV_ASSIGN expr ';'{ printf("Compound Assignment: %s /= (line %d)\n", $1, yylineno); } 
+        | ID MOD_ASSIGN expr ';'{ printf("Compound Assignment: %s %%= (line %d)\n", $1, yylineno); } 
+        ;
 
 type:
-        INT          { $$ = "int"; }
-      | FLOAT        { $$ = "float"; }
-      | CHAR         { $$ = "char"; }
-      | DOUBLE       { $$ = "double"; }
+        INT     { $$ = "int"; }
+        | FLOAT { $$ = "float"; }
+        | CHAR  { $$ = "char"; }
+        | DOUBLE{ $$ = "double"; }
         ;
 
 %%
@@ -152,3 +144,4 @@ void yyerror(const char *s)
 {
     printf("Syntax error: %s\n", s);
 }
+
