@@ -2,7 +2,7 @@
     #include<stdio.h>
     #include<stdlib.h>
     #include<string.h>
-    #include "parser_visualizer.tab.h"
+    #include "parser_semantic.tab.h"
 %}
 
 %option yylineno
