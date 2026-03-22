@@ -4,6 +4,8 @@
     int token=0;
 %}
 
+%option yylineno
+
 %x COMMENT  
 
 %%
@@ -17,44 +19,48 @@
 <COMMENT>.|\n  ;   /* just ignore everything that user has written inside these comment */
 
      
-int|float|char|return|double|if|else|while  {printf("Token %-4d Keywords:\t %s\n",++token,yytext);}
+int|float|char|return|double|if|else|while  { printf("%-20d %-40s %-20s\n", ++token, "Keyword", yytext); }
 
-printf|scanf                    {printf("Token %-4d I/O Identifiers:\t %s\n",++token,yytext);}
+printf|scanf                   { printf("%-20d %-40s %-20s\n", ++token, "I/O Identifiers", yytext); }
 
-[a-zA-Z][a-zA-Z0-9]*    {printf("Token %-4d Identifiers:\t %s\n",++token,yytext);}
+[a-zA-Z][a-zA-Z0-9]*    { printf("%-20d %-40s %-20s\n", ++token, "Identifiers", yytext); }
 
-[();,{}]                       {printf("Token %-4d Separators:\t %s\n",++token,yytext);}
+[();,{}]                      { printf("%-20d %-40s %-20s\n", ++token, "Separators", yytext); }
 
-[0-9]+\.[0-9]*|\.[0-9]+     {printf("Token %-4d Floating point numbers:\t %s\n",++token,yytext);}
+[0-9]+\.[0-9]*|\.[0-9]+    { printf("%-20d %-40s %-20s\n", ++token, "Floating point numbers", yytext); }
 
-[0-9]+                {printf("Token %-4d Integer numbers:\t %s\n",++token,yytext);}
+[0-9]+                { printf("%-20d %-40s %-20s\n", ++token, "Integers", yytext); }
 
-"&&"|"||"    { printf("Token %-4d Logical operators:\t %s\n",++token, yytext); }
+"++"|"--"|"+="|"-="|"*="|"/="|"%="|"=="|"<="|">="|"!="   { printf("%-20d %-40s %-20s\n", ++token, "Multi-character Operators", yytext); }
 
-"=="|"<="|">="|"!="      {printf("Token %-4d multi character Operators:\t %s\n",++token,yytext);}
+"&&"|"||"    { printf("%-20d %-40s %-20s\n", ++token, "Logical Operators", yytext); }
 
-"&"|"|"      { printf("Token %-4d Bitwise Operators:\t %s\n",++token,yytext); }
+"&"|"|"      { printf("%-20d %-40s %-20s\n", ++token, "Bitwise Operators", yytext); }
 
-[=><!]                  {printf("Token %-4d single character Operators:\t %s\n",++token,yytext);}
+[=><!]                 { printf("%-20d %-40s %-20s\n", ++token, "Single Character Operators", yytext); }
 
-[+\-*/%]                {printf("Token %-4d Arithmetic Operators:\t %s\n",++token,yytext);}
+[+\-*/%]               { printf("%-20d %-40s %-20s\n", ++token, "Arithmetic Operators", yytext); }
 
-\'([^\\']|\\.)\'      { printf("Token %-4d Character literal:\t %s\n",++token,yytext); }
+\'([^\\']|\\.)\'      { printf("%-20d %-40s %-20s\n", ++token, "Character literals", yytext); }
 
-\"([^\\"]|\\.)*\"     { printf("Token %-4d String literal:\t %s\n",++token,yytext); }
+\"([^\\"]|\\.)*\"     { printf("%-20d %-40s %-20s\n", ++token, "String literals", yytext); }
 
 
-[0-9]+[0-9a-zA-Z]+     { printf("Invalid Identifier:\t %s\n",yytext); }
+[0-9]+[0-9a-zA-Z]+     { printf("Invalid Identifier at line %d:\t %s\n",yylineno,yytext); }
 
 [ \n\t\r]+               ;    
 
-.                     { printf("Invalid character:\t %s\n",yytext); }
+.                     { printf("Invalid character at line %d:\t %s\n",yylineno, yytext); }
 
 
 %%
 
 int main(int argc, char *argv[])
 {
+    printf("\n=================== Lexer Output (Token Stream) =====================\n\n");
+    printf("%-20s %-40s %-20s\n", "Token No", "Token Type", "Lexeme");
+    printf("-------------------------------------------------------------------------\n");
+
    extern FILE *yyin;
 
    if(argc<2)
