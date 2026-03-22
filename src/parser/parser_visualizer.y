@@ -70,6 +70,9 @@ io_stmt:
 declaration:
         type ID ';'
         { printf("Declaration: %s %s\n", $1, $2); }
+        | type ID '=' expr ';'
+        { printf("Declaration with init: %s %s (line %d)\n", $1, $2, yylineno); }
+        ;
         ;
 
 expr:
@@ -142,6 +145,5 @@ type:
 
 void yyerror(const char *s)
 {
-    printf("Syntax error: %s\n", s);
+    printf("Syntax error at line %d: %s\n", yylineno, s);
 }
-
