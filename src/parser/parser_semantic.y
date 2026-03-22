@@ -135,9 +135,13 @@ io_stmt:
 declaration:
         type ID ';'
         {   add_declaration($1,$2); 
-            $$=create_node("declaration",$2,NULL,NULL);
+            $$=create_node("declaration",$2,NULL,NULL); //ex: int x; it has no children
         }      
-                  //ex: int x; it has no children
+        | type ID '=' expr ';'
+        {
+           add_declaration($1, $2);
+           $$=create_node("declaration_init",$2,$4,NULL);
+        }  
         ;
 
 expr:
