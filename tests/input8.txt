@@ -1,0 +1,26 @@
+int x;
+float y = 3.14;
+char c = 'a';
+
+x = 10;
+y += 2.5;
+x *= 3;
+
+if(x > 5) {
+    x = x - 1;
+}
+
+if(y >= 3.14) {
+    y = y + 1.0;
+} else {
+    y = 0;
+}
+
+while(x > 0) {
+    x -= 1;
+}
+
+printf(x);
+scanf(x, y);
+
+return x;
