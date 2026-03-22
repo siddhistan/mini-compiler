@@ -4,8 +4,7 @@
    multi line
    comment */
 
-int main() {
-    int a = 10;
+    a = 10;
     float b = -3.14;
     double c = .25;
     char d = 'x';        // character literal
@@ -19,4 +18,3 @@ int main() {
     if (a >= 10 && b != 0) {
         return 'A';      // character literal
     }
-}
