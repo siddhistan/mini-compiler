@@ -73,7 +73,7 @@ declaration:
         | type ID '=' expr ';'
         { printf("Declaration with init: %s %s (line %d)\n", $1, $2, yylineno); }
         ;
-        ;
+        
 
 expr:
         expr '+' expr
