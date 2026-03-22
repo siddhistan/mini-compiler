@@ -30,7 +30,7 @@ extern int yylineno;
 %left '+' '-'
 %left '*' '/' '%'
 %right '!' '~'
-%right INC DEC
+%right INC DEC UMINUS
 
 %nonassoc LOWER_THAN_ELSE
 %nonassoc ELSE
@@ -81,7 +81,7 @@ expr:
         | expr '*' expr
         | expr '/' expr
         | expr '%' expr
-        | '-' expr %prec '-'
+        | '-' expr %prec UMINUS
         | expr EQ expr
         | expr NEQ expr
         | expr LEQ expr

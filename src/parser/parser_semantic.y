@@ -91,7 +91,7 @@ void semantic_check(ast *root, declaration *head);
 %left '+' '-'
 %left '*' '/' '%'
 %right '!' '~'
-%right INC DEC
+%right INC DEC UMINUS
 
 %nonassoc LOWER_THAN_ELSE
 %nonassoc ELSE
@@ -150,7 +150,7 @@ expr:
         | expr '*' expr          { $$= create_node("op","*",$1,$3); }   
         | expr '/' expr          {$$= create_node("op","/",$1,$3); } 
         | expr '%' expr          {$$= create_node("op","%",$1,$3); } 
-        | '-' expr %prec '-'       {$$= create_node("unary_op","-",$2,NULL); }  //unary_op: -, left child is expr, right is NULL
+        | '-' expr %prec UMINUS       {$$= create_node("unary_op","-",$2,NULL); }  //unary_op: -, left child is expr, right is NULL
         | expr EQ expr            {$$= create_node("multi_op","==",$1,$3); }
         | expr NEQ expr           {$$= create_node("multi_op","!=",$1,$3); }
         | expr LEQ expr            {$$= create_node("multi_op","<=",$1,$3); }
