@@ -57,7 +57,7 @@ printf|scanf                   { printf("%-20d %-40s %-20s\n", ++token, "I/O Ide
 
 int main(int argc, char *argv[])
 {
-    printf("\n=== Lexer Output (Token Stream) ===\n\n");
+    printf("\n=================== Lexer Output (Token Stream) =====================\n\n");
     printf("%-20s %-40s %-20s\n", "Token No", "Token Type", "Lexeme");
     printf("-------------------------------------------------------------------------\n");
 
