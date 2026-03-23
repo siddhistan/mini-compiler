@@ -74,6 +74,10 @@ printf|scanf            {return IO;}
 
 int main(int argc, char *argv[])
 {
+    printf("\n=================== Parser Output =====================\n\n");
+    printf("%-20s %-40s %-20s\n", "Construct No", "Construct Type", "Details");
+    printf("----------------------------------------------------------------\n");
+    
    extern FILE *yyin;
 
    if(argc<2)

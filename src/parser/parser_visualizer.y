@@ -4,6 +4,7 @@
 int yylex();
 void yyerror(const char *s);
 extern int yylineno;
+int construct=0;
 %}
 
 %union{
@@ -62,16 +63,16 @@ statement:
 
 io_stmt:
         IO '(' expr ')' ';'
-        { printf("IO Statement with 1 argument (line %d)\n", yylineno); }          
+        { printf("%-20d %-40s %-20d\n", ++construct, "IO Statement (1 arg)", yylineno); }   
         | IO '(' expr ',' expr ')' ';'
-        { printf("IO Statement with 2 arguments (line %d)\n", yylineno); }        
+       { printf("%-20d %-40s %-20d\n", ++construct, "IO Statement (2 arg)", yylineno); }       
         ;
 
 declaration:
         type ID ';'
-        { printf("Declaration: %s %s\n", $1, $2); }
+      { printf("%-20d %-40s %s %s (line %d)\n", ++construct, "Declaration", $1, $2, yylineno); }
         | type ID '=' expr ';'
-        { printf("Declaration with init: %s %s (line %d)\n", $1, $2, yylineno); }
+      { printf("%-20d %-40s %s %s (line %d)\n", ++construct, "Declaration with Init", $1, $2, yylineno); }
         ;
         
 
@@ -97,41 +98,41 @@ expr:
         | expr '|' expr
         | '&' expr
         | '(' expr ')'
-        | ID            { printf("Identifier: %s\n", $1); }
-        | INT_NUM       { printf("Integer: %s\n", $1); }
-        | FLOAT_NUM     { printf("Float: %s\n", $1); }
+        | ID            
+        | INT_NUM       
+        | FLOAT_NUM     
         | INC expr
         | DEC expr
         | expr INC
         | expr DEC
-        | STRING        { printf("String: %s\n", $1); }
-        | CHAR_LIT      { printf("Char literal: %s\n", $1); }
+        | STRING       
+        | CHAR_LIT      
         ;
 
 return_stmt:
         RETURN expr ';'
-        { printf("Return Statement: (line %d)\n", yylineno); }
+        { printf("%-20d %-40s %-20d\n", ++construct, "Return Statement", yylineno); }
         ;
 
 if_stmt:
         IF '(' expr ')' block %prec LOWER_THAN_ELSE
-           { printf("If Statement (line %d)\n", yylineno); }
+          { printf("%-20d %-40s %-20d\n", ++construct, "If Statement", yylineno); }
         | IF '(' expr ')' block ELSE block
-           { printf("If-Else Statement (line %d)\n", yylineno); }
+          { printf("%-20d %-40s %-20d\n", ++construct, "If-Else Statement", yylineno); }
         ;
 
 while_stmt:
         WHILE '(' expr ')' block
-        { printf("While Statement (line %d)\n", yylineno); }
+       { printf("%-20d %-40s %-20d\n", ++construct, "While Statement", yylineno); }
         ;
 
 assignment:
-        ID '=' expr ';'         { printf("Assignment: %s (line %d)\n", $1, yylineno); }           
-        | ID ADD_ASSIGN expr ';'{ printf("Compound Assignment: %s += (line %d)\n", $1, yylineno); } 
-        | ID SUB_ASSIGN expr ';'{ printf("Compound Assignment: %s -= (line %d)\n", $1, yylineno); } 
-        | ID MUL_ASSIGN expr ';'{ printf("Compound Assignment: %s *= (line %d)\n", $1, yylineno); } 
-        | ID DIV_ASSIGN expr ';'{ printf("Compound Assignment: %s /= (line %d)\n", $1, yylineno); } 
-        | ID MOD_ASSIGN expr ';'{ printf("Compound Assignment: %s %%= (line %d)\n", $1, yylineno); } 
+        ID '=' expr ';'           { printf("%-20d %-40s %s (line %d)\n", ++construct, "Assignment", $1, yylineno); }         
+        | ID ADD_ASSIGN expr ';'  { printf("%-20d %-40s %s += (line %d)\n", ++construct, "Compound Assignment", $1, yylineno); }
+        | ID SUB_ASSIGN expr ';'  { printf("%-20d %-40s %s -= (line %d)\n", ++construct, "Compound Assignment", $1, yylineno); }
+        | ID MUL_ASSIGN expr ';'  { printf("%-20d %-40s %s *= (line %d)\n", ++construct, "Compound Assignment", $1, yylineno); }
+        | ID DIV_ASSIGN expr ';'  { printf("%-20d %-40s %s /= (line %d)\n", ++construct, "Compound Assignment", $1, yylineno); }
+        | ID MOD_ASSIGN expr ';'  { printf("%-20d %-40s %s %%= (line %d)\n", ++construct, "Compound Assignment", $1, yylineno); }
         ;
 
 type:

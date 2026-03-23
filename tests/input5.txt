@@ -14,9 +14,9 @@
     c *= a;
 
     if (a > 10) {
-        printf(a);
+        printf("hello");
     } else {
-        printf(b);
+        printf("wow");
     }
 
     while (a < 20) {
