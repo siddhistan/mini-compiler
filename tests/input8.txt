@@ -20,7 +20,7 @@ while(x > 0) {
     x -= 1;
 }
 
-printf(x);
-scanf(x, y);
+printf("%d",x);
+scanf("%d",&x);
 
 return x;
