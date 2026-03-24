@@ -1,0 +1,13 @@
+int a;
+int b;
+float x = 3.14;
+char c = 'z';
+int result = a + b;
+
+int a;
+
+result = x;
+
+int bad = y + 1;
+
+int val = 10 / 0;
