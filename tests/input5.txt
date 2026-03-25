@@ -1,0 +1,27 @@
+
+    int a;
+    float b;
+    double c;
+    char d;
+
+    a = 10;
+    b = 3.14;
+    c = .25;
+    d = 'x';
+
+    a = a + 5;
+    b += 2.0;
+    c *= a;
+
+    if (a > 10) {
+        printf("hello");
+    } else {
+        printf("wow");
+    }
+
+    while (a < 20) {
+        a++;
+        b = b + 1.5;
+    }
+
+    return a;
