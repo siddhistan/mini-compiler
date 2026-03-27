@@ -9,16 +9,18 @@ typedef struct declaration
 {
     char *type;
     char *name;
+    int   line;                       //added this here in the semantic phase
     struct declaration *next;
 }declaration;                       
 
 declaration *head=NULL;
 
-void add_declaration(char *type, char* name)
+void add_declaration(char *type, char* name,int line)          //added one more parameter while working in the semantic phase
 {
     declaration *d=malloc(sizeof(declaration));
     d->type=strdup(type);
     d->name=strdup(name);
+    d->line = line;                                        //added this here in the semantic phase
     d->next=NULL;
 
     if(head==NULL)
@@ -58,7 +60,7 @@ ast *create_node(char *type, char *value,ast *left, ast *right)
     return node;
 }
 
-void semantic_check(ast *root, declaration *head);
+void run_semantic_analysis(ast *root, declaration *head);           //changed the name of the function to run_semantic_analysis from semantic_check
 
 
 %}
@@ -100,7 +102,7 @@ void semantic_check(ast *root, declaration *head);
 
 program:
         statement_list
-        {semantic_check($1,head);}   //root of tree strucure and head pointer of declaration list is passed to semantic phase
+        {run_semantic_analysis($1,head);}   //root of tree strucure and head pointer of declaration list is passed to semantic phase
         ;
 
 block:
@@ -134,12 +136,12 @@ io_stmt:
 
 declaration:
         type ID ';'
-        {   add_declaration($1,$2); 
+        {   add_declaration($1,$2,yylineno);                                                //adding line yylineno as parameter here while working in the semantic phase
             $$=create_node("declaration",$2,NULL,NULL); //ex: int x; it has no children
         }      
         | type ID '=' expr ';'
         {
-           add_declaration($1, $2);
+           add_declaration($1, $2,yylineno);                           //adding line yylineno as parameter here while working in the semantic phase
            $$=create_node("declaration_init",$2,$4,NULL);
         }  
         ;
