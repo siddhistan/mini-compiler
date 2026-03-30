@@ -60,7 +60,8 @@ ast *create_node(char *type, char *value,ast *left, ast *right)
     return node;
 }
 
-void run_semantic_analysis(ast *root, declaration *head);           //changed the name of the function to run_semantic_analysis from semantic_check
+int run_semantic_analysis(ast *root, declaration *head);      //changed the name of the function to run_semantic_analysis from semantic_check
+void generate_tac(ast *root);         
 
 
 %}
@@ -101,9 +102,15 @@ void run_semantic_analysis(ast *root, declaration *head);           //changed th
 %%
 
 program:
-        statement_list
-        {run_semantic_analysis($1,head);}   //root of tree strucure and head pointer of declaration list is passed to semantic phase
-        ;
+    statement_list
+    {
+        int errors = run_semantic_analysis($1, head);
+        if(errors == 0)
+            generate_tac($1);
+        else
+            printf("\nICG skipped due to semantic errors\n");
+    }
+    ;
 
 block:
         '{' statement_list '}'
