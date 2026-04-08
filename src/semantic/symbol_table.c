@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 
+
 typedef struct declaration {
     char *type;
     char *name;
@@ -17,9 +18,9 @@ typedef struct ast {
 } ast;
 
 
-int is_declared(char *var, declaration *head) {
+int is_declared(char *var, declaration *head) { //int a
     while (head) {
-        if (strcmp(head->name, var) == 0) return 1;
+        if (strcmp(head->name, var) == 0) return 1;//found
         head = head->next;
     }
     return 0;
@@ -33,12 +34,6 @@ char *get_type(char *var, declaration *head) {
     return NULL;
 }
 
-
-/* ─────────────────────────────────────────────────────
-   PRINT SYMBOL TABLE
-   Source: declaration linked list (not AST)
-   Columns: #, Name, Type, Line of Declaration
-───────────────────────────────────────────────────── */
 
 void print_symbol_table(declaration *head) {
     printf("\n");
@@ -74,25 +69,25 @@ char *get_expr_type(ast *node, declaration *head) {
     if (strcmp(node->type, "id") == 0)
         return get_type(node->value, head);
 
-    /* logical, comparison, multi ops always produce int (0 or 1) */
+    // logical, comparison, multi ops always produce int (0 or 1) //x+=b
     if (strcmp(node->type, "logical_op")  == 0 ||
         strcmp(node->type, "comp_op")     == 0 ||
         strcmp(node->type, "multi_op")    == 0 ||
         strcmp(node->type, "log_not_op")  == 0)
         return "int";
 
-    /* unary minus inherits child type */
-    if (strcmp(node->type, "unary_op") == 0)
+    // unary minus inherits child type 
+    if (strcmp(node->type, "unary_op") == 0) //-x,x+=b ,
         return get_expr_type(node->left, head);
 
-    /* pre/post increment and decrement inherit child type */
+    // pre/post increment and decrement inherit child type 
     if (strcmp(node->type, "pre_increment")  == 0 ||
         strcmp(node->type, "pre_decrement")  == 0 ||
         strcmp(node->type, "post_increment") == 0 ||
         strcmp(node->type, "post_decrement") == 0)
         return get_expr_type(node->left, head);
 
-    /* arithmetic and bitwise: propagate widest type upward */
+    // arithmetic and bitwise: propagate widest type upward 
     char *left  = get_expr_type(node->left,  head);
     char *right = get_expr_type(node->right, head);
 
@@ -107,14 +102,14 @@ char *get_expr_type(ast *node, declaration *head) {
 
 
 int types_compatible(char *target, char *source) {
-    if (!target || !source)                          return 1; /* unknown, skip */
-    if (strcmp(target, source) == 0)                 return 1; /* exact match   */
+
+    if (strcmp(target, source) == 0)                 return 1; // exact match   
     if (strcmp(target, "float")  == 0 &&
-        strcmp(source, "int")    == 0)               return 1; /* int → float   */
+        strcmp(source, "int")    == 0)               return 1; // int → float   
     if (strcmp(target, "double") == 0 &&
-        strcmp(source, "int")    == 0)               return 1; /* int → double  */
+        strcmp(source, "int")    == 0)               return 1; // int → double  
     if (strcmp(target, "double") == 0 &&
-        strcmp(source, "float")  == 0)               return 1; /* float → double*/
+        strcmp(source, "float")  == 0)               return 1; // float → double
     return 0;
 }
 
@@ -152,12 +147,11 @@ int check_undeclared(ast *root, declaration *head) {
     return errors;
 }
 
-
 int check_type_mismatch(ast *root, declaration *head) {
     if (!root) return 0;
     int errors = 0;
 
-    if (strcmp(root->type, "assign") == 0) {
+    if (strcmp(root->type, "assign") == 0) 
 
         char *var_name  = NULL;
         char *expr_type = NULL;
@@ -169,11 +163,11 @@ int check_type_mismatch(ast *root, declaration *head) {
                            strcmp(root->value, "%=") == 0);
 
         if (!is_compound) {
-            /* simple assign: value holds the variable name, left is expr */
+            // simple assign: value holds the variable name, left is expr 
             var_name  = root->value;
             expr_type = get_expr_type(root->left, head);
         } else {
-            /* compound assign: left child is id node holding variable name */
+            // compound assign: left child is id node holding variable name
             if (root->left && strcmp(root->left->type, "id") == 0) {
                 var_name  = root->left->value;
                 expr_type = get_expr_type(root->right, head);
@@ -191,7 +185,7 @@ int check_type_mismatch(ast *root, declaration *head) {
         }
     }
 
-    /* also check declaration_init: value = varname, left = expr */
+    // also check declaration_init: value = varname, left = expr
     if (strcmp(root->type, "declaration_init") == 0) {
         char *var_type  = get_type(root->value, head);
         char *expr_type = get_expr_type(root->left, head);
@@ -210,7 +204,7 @@ int check_type_mismatch(ast *root, declaration *head) {
 }
 
 
-int check_division_by_zero(ast *root) {
+int check_division_by_zero(ast *root) { //int x=a/0;
     if (!root) return 0;
     int errors = 0;
 
@@ -231,13 +225,11 @@ int check_division_by_zero(ast *root) {
 }
 
 
-void run_semantic_analysis(ast *root, declaration *head) {
+int run_semantic_analysis(ast *root, declaration *head) {
 
-    /* ── Symbol Table ── */
     printf("\n========== Symbol Table ==========");
     print_symbol_table(head);
 
-    /* ── Semantic Checks ── */
     printf("========== Semantic Analysis ==========\n\n");
 
     int errors = 0;
@@ -262,12 +254,11 @@ void run_semantic_analysis(ast *root, declaration *head) {
     if (divzero == 0) printf("  OK\n");
     errors += divzero;
 
-    /* ── Verdict ── */
     printf("\n----------------------------------------\n");
     if (errors == 0)
         printf("  Status: PASSED — No semantic errors found\n");
     else
         printf("  Status: FAILED — %d error(s) found\n", errors);
     printf("========================================\n\n");
+    return errors;
 }
-
