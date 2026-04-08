@@ -151,7 +151,7 @@ int check_type_mismatch(ast *root, declaration *head) {
     if (!root) return 0;
     int errors = 0;
 
-    if (strcmp(root->type, "assign") == 0) 
+    if (strcmp(root->type, "assign") == 0) {
 
         char *var_name  = NULL;
         char *expr_type = NULL;
