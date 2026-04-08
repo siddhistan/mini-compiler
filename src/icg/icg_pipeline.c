@@ -72,7 +72,6 @@ char *eval_expr(ast *node) { //Takes an AST node, generates TAC for it, returns 
         strcmp(node->type, "char_lit") == 0 ||
         strcmp(node->type, "string")   == 0)
         return strdup(node->value);//If node has value like 5, 3.14, 'a', "hello" — just return the value directly. No TAC needed. strdup makes a copy of the string.
-c
 
     if (strcmp(node->type, "id") == 0)
         return strdup(node->value); //If node is a variable like x, y — just return the variable name directly. No TAC needed.
@@ -122,7 +121,7 @@ c
         add_tac(buf);
         sprintf(buf, "%s = %s - 1", operand, operand);
         add_tac(buf);
-        return temp;+
+        return temp;
     } /*generate_expr_silent(a + b*2)
     left  = generate_expr_silent(a)  → returns "a"
     right = generate_expr_silent(b*2)
@@ -144,7 +143,7 @@ List now has:
         strcmp(node->type, "comp_op")    == 0 ||
         strcmp(node->type, "logical_op") == 0 ||
         strcmp(node->type, "bit_op")     == 0) {
-        char *left  = eval_exprt(node->left);  
+        char *left  = eval_expr(node->left);  
         char *right = eval_expr(node->right);
         char *temp  = new_temp();
         char  buf[128];
@@ -191,7 +190,7 @@ List now has:
 void process_stmt(ast *node); //forward decleration to tell compiler this function exists before we define it
 
 void process_stmt(ast *node) {
-    if (!node) return;0
+    if (!node) return;
 
     if (strcmp(node->type, "sequence") == 0) {  
        process_stmt(node->left);// process first statement
