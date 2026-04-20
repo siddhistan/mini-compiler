@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h> // for isdigit()
 
 // This structure matches the one in icg_pipeline.c
 typedef struct tac_instr {
@@ -24,97 +25,86 @@ void optimize_tac() {
     // Loop through all instructions
     while (curr != NULL) {
         char *inst = curr->instr;
-        int instruction_removed = 0;
-        
-        // 1. Extended Algebraic Simplification (+ 0, - 0)
-        if (strstr(inst, " + 0") != NULL || strstr(inst, " - 0") != NULL) {
-            char result[50], var1[50];
-            if (sscanf(inst, "%s = %s + 0", result, var1) == 2 || 
-                sscanf(inst, "%s = %s - 0", result, var1) == 2) {
-                char new_inst[100];
-                sprintf(new_inst, "%s = %s", result, var1);
-                printf("[Opt] Algebraic Simplification: %s  ->  %s\n", inst, new_inst);
-                free(curr->instr);
-                curr->instr = strdup(new_inst);
-                inst = curr->instr;
-                opt_count++;
-            }
-        }
-        
-        // 1b. Extended Algebraic Simplification (* 1, / 1)
-        if (strstr(inst, " * 1") != NULL || strstr(inst, " / 1") != NULL) {
-            char result[50], var1[50];
-            if (sscanf(inst, "%s = %s * 1", result, var1) == 2 || 
-                sscanf(inst, "%s = %s / 1", result, var1) == 2) {
-                char new_inst[100];
-                sprintf(new_inst, "%s = %s", result, var1);
-                printf("[Opt] Algebraic Simplification: %s  ->  %s\n", inst, new_inst);
-                free(curr->instr);
-                curr->instr = strdup(new_inst);
-                inst = curr->instr;
-                opt_count++;
-            }
-        }
+        char res[50], arg1[50], op[10], arg2[50];
+        int removed = 0;
 
-        // 2. Simple Strength Reduction (* 2 -> +)
-        if (strstr(inst, " * 2") != NULL) {
-            char result[50], var1[50];
-            if (sscanf(inst, "%s = %s * 2", result, var1) == 2) {
+        // Try to break the string into 4 parts: "Result = Arg1 Operator Arg2"
+        int parts = sscanf(inst, "%s = %s %s %s", res, arg1, op, arg2);
+
+        // If it successfully broke down into exactly 4 parts (like: x = y + 5)
+        if (parts == 4) {
+            
+            // 1. Algebraic Simplification (e.g., x = y + 0)
+            if ((strcmp(op, "+") == 0 && strcmp(arg2, "0") == 0) ||
+                (strcmp(op, "-") == 0 && strcmp(arg2, "0") == 0) ||
+                (strcmp(op, "*") == 0 && strcmp(arg2, "1") == 0) ||
+                (strcmp(op, "/") == 0 && strcmp(arg2, "1") == 0)) {
+                
                 char new_inst[100];
-                sprintf(new_inst, "%s = %s + %s", result, var1, var1);
+                sprintf(new_inst, "%s = %s", res, arg1); // Simplify to just "Result = Arg1"
+                
+                printf("[Opt] Simplified: %s  ->  %s\n", inst, new_inst);
+                free(curr->instr);
+                curr->instr = strdup(new_inst);
+                opt_count++;
+            }
+            
+            // 2. Strength Reduction (e.g., x = y * 2)
+            else if (strcmp(op, "*") == 0 && strcmp(arg2, "2") == 0) {
+                char new_inst[100];
+                sprintf(new_inst, "%s = %s + %s", res, arg1, arg1); // Change * 2 to +
+                
                 printf("[Opt] Strength Reduction: %s  ->  %s\n", inst, new_inst);
                 free(curr->instr);
                 curr->instr = strdup(new_inst);
-                inst = curr->instr;
                 opt_count++;
             }
-        }
-
-        // 3. Constant Folding (e.g., t1 = 5 + 3 -> t1 = 8)
-        char res[50], arg1[50], op[10], arg2[50];
-        if (sscanf(inst, "%s = %s %s %s", res, arg1, op, arg2) == 4) {
-            // Very simple check to see if both arguments start with a digit
-            if (arg1[0] >= '0' && arg1[0] <= '9' && arg2[0] >= '0' && arg2[0] <= '9') {
+            
+            // 3. Constant Folding (e.g., x = 5 + 3)
+            else if (isdigit(arg1[0]) && isdigit(arg2[0])) {
                 int val1 = atoi(arg1);
                 int val2 = atoi(arg2);
-                int folded_val = 0;
+                int final_val = 0;
                 int can_fold = 1;
                 
-                if (strcmp(op, "+") == 0) folded_val = val1 + val2;
-                else if (strcmp(op, "-") == 0) folded_val = val1 - val2;
-                else if (strcmp(op, "*") == 0) folded_val = val1 * val2;
-                else if (strcmp(op, "/") == 0 && val2 != 0) folded_val = val1 / val2;
-                else can_fold = 0;
-                
-                if (can_fold) {
+                // Do the math
+                if (strcmp(op, "+") == 0) final_val = val1 + val2;
+                else if (strcmp(op, "-") == 0) final_val = val1 - val2;
+                else if (strcmp(op, "*") == 0) final_val = val1 * val2;
+                else if (strcmp(op, "/") == 0) final_val = val1 / val2;
+                else can_fold = 0; // Not a math operator
+
+                if (can_fold == 1) {
                     char new_inst[100];
-                    sprintf(new_inst, "%s = %d", res, folded_val);
-                    printf("[Opt] Constant Folding: %s  ->  %s\n", inst, new_inst);
+                    sprintf(new_inst, "%s = %d", res, final_val);
+                    
+                    printf("[Opt] Constant Folded: %s  ->  %s\n", inst, new_inst);
                     free(curr->instr);
                     curr->instr = strdup(new_inst);
-                    inst = curr->instr;
                     opt_count++;
                 }
             }
         }
         
-        // 4. Naive Dead Code Elimination (e.g., x = x)
-        if (sscanf(inst, "%s = %s", res, arg1) == 2 && strcmp(res, arg1) == 0 && strstr(inst, "+") == NULL && strstr(inst, "-") == NULL && strstr(inst, "*") == NULL && strstr(inst, "/") == NULL) {
-             printf("[Opt] Dead Code Eliminated (Useless Assignment): %s\n", inst);
-             instruction_removed = 1;
-             opt_count++;
-             
-             // Remove the node safely
-             if (prev != NULL) {
-                 prev->next = curr->next;
-             }
+        // If it only broke into 2 parts (like: x = x)
+        else if (parts == 2) {
+            
+            // 4. Dead Code Elimination (Useless Assignment)
+            if (strcmp(res, arg1) == 0) {
+                 printf("[Opt] Removed Useless Assignment: %s\n", inst);
+                 removed = 1;
+                 opt_count++;
+                 
+                 // Remove the node from the linked list
+                 if (prev != NULL) {
+                     prev->next = curr->next;
+                 }
+            }
         }
-        
-        // Move to next instruction
-        if (!instruction_removed) {
+
+        // Move to the next instruction
+        if (removed == 0) {
             prev = curr;
-        } else {
-            // Need to free curr if we are actually fully managing memory, but for safety in this loop we just bypass it
         }
         curr = curr->next;
     }
@@ -138,82 +128,61 @@ void generate_target_code() {
         char inst[100];
         strcpy(inst, curr->instr);
         
-        // Let's print the original TAC instruction as a comment for clarity
         printf("\n; %s\n", inst);
         
-        // Variables to hold extracted text
         char result[50], arg1[50], op[10], arg2[50];
         char label_name[50], cond[50];
 
-        // 1. Check if it is a Label (e.g., "L1:")
+        // 1. Is it a Label? (e.g., L1:)
         if (strchr(inst, ':') != NULL) {
             printf("%s\n", inst);
         }
         
-        // 2. Check for "if cond goto L1"
+        // 2. Is it an IF statement? (e.g., if x goto L1)
         else if (sscanf(inst, "if %s goto %s", cond, label_name) == 2) {
             printf("LOAD R1, %s\n", cond);
             printf("CMP R1, 0\n");
             printf("JNE %s\n", label_name);
         }
         
-        // 3. Check for "goto L1"
+        // 3. Is it a GOTO statement? (e.g., goto L1)
         else if (sscanf(inst, "goto %s", label_name) == 1) {
             printf("JMP %s\n", label_name);
         }
         
-        // 4. Check for "return x"
+        // 4. Is it a RETURN statement?
         else if (sscanf(inst, "return %s", arg1) == 1) {
             printf("LOAD R1, %s\n", arg1);
             printf("RET R1\n");
         }
         
-        // 5. Binary Operations "t1 = x + y"
+        // 5. Is it a Binary Operation? (e.g., x = y + z)
         else if (sscanf(inst, "%s = %s %s %s", result, arg1, op, arg2) == 4) {
-            // Load operands into registers R1 and R2
             printf("LOAD R1, %s\n", arg1);
             printf("LOAD R2, %s\n", arg2);
             
-            // Perform the operation and store in R3
-            if (strcmp(op, "+") == 0) {
-                printf("ADD R3, R1, R2\n");
-            } 
-            else if (strcmp(op, "-") == 0) {
-                printf("SUB R3, R1, R2\n");
-            } 
-            else if (strcmp(op, "*") == 0) {
-                printf("MUL R3, R1, R2\n");
-            } 
-            else if (strcmp(op, "/") == 0) {
-                printf("DIV R3, R1, R2\n");
-            } 
-            else {
-                // For logic operations (==, <, >) or bitwise
-                printf("OP R3, R1, R2    // generic operation for '%s'\n", op);
-            }
+            if (strcmp(op, "+") == 0)      printf("ADD R3, R1, R2\n");
+            else if (strcmp(op, "-") == 0) printf("SUB R3, R1, R2\n");
+            else if (strcmp(op, "*") == 0) printf("MUL R3, R1, R2\n");
+            else if (strcmp(op, "/") == 0) printf("DIV R3, R1, R2\n");
+            else                           printf("OP R3, R1, R2    // generic logic for '%s'\n", op);
             
-            // Store result back
             printf("STORE %s, R3\n", result);
         }
         
-        // 6. Simple Assignment "x = y"
-        // This is safe because we already checked for 4 arguments above!
+        // 6. Is it a Simple Assignment? (e.g., x = y)
         else if (sscanf(inst, "%s = %s", result, arg1) == 2) {
-            
-            // If argument starts with -, it's a unary negative (e.g. t1 = -x)
-            if (arg1[0] == '-') {
-                printf("LOAD R1, %s\n", arg1 + 1); // skip the negative sign
+            if (arg1[0] == '-') { 
+                printf("LOAD R1, %s\n", arg1 + 1); // skip negative sign
                 printf("NEG R1\n");
                 printf("STORE %s, R1\n", result);
             }
             else {
-                // Just a normal assignment
                 printf("LOAD R1, %s\n", arg1);
                 printf("STORE %s, R1\n", result);
             }
         }
         
-        // 7. Unknown Format
         else {
             printf("; Unhandled Instruction Structure\n");
         }
