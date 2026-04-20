@@ -62,7 +62,8 @@ ast *create_node(char *type, char *value,ast *left, ast *right)
 
 int run_semantic_analysis(ast *root, declaration *head);      //changed the name of the function to run_semantic_analysis from semantic_check
 void generate_tac(ast *root);         
-
+void optimize_tac();
+void generate_target_code();
 
 %}
 
@@ -105,8 +106,11 @@ program:
     statement_list
     {
         int errors = run_semantic_analysis($1, head);
-        if(errors == 0)
+        if(errors == 0) {
             generate_tac($1);
+            optimize_tac();
+            generate_target_code();
+        }
         else
             printf("\nICG skipped due to semantic errors\n");
     }
