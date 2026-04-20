@@ -2,11 +2,12 @@
 #include <string.h>
 #include <stdlib.h>
 
+
 typedef struct declaration {
     char *type;
     char *name;
     int   line;
-    struct declaration *next;  
+    struct declaration *next;
 } declaration;
 
 typedef struct ast {
@@ -15,6 +16,7 @@ typedef struct ast {
     struct ast *left;
     struct ast *right;
 } ast;
+
 
 static int temp_count  = 0;
 static int label_count = 0;
@@ -32,6 +34,7 @@ char *new_label() {
     return buf;
 }
 
+
 void print_instr(const char *instr) {
     printf("  %-4d %s\n", ++instr_count, instr);
 }
@@ -45,7 +48,7 @@ void print_section(const char *title) {
 }
 
 
-char *generate_expr(ast *node) { //takes ast and generated intermediate code return string
+char *generate_expr(ast *node) {
     if (!node) return NULL;
 
     /* base cases */
@@ -55,21 +58,21 @@ char *generate_expr(ast *node) { //takes ast and generated intermediate code ret
         strcmp(node->type, "string")   == 0)
         return strdup(node->value);
 
-    if (strcmp(node->type, "id") == 0) //a
+    if (strcmp(node->type, "id") == 0)
         return strdup(node->value);
 
-    // unary minus 
+    /* unary minus */
     if (strcmp(node->type, "unary_op") == 0) {
-        char *operand = generate_expr(node->left); //-a opr =a
+        char *operand = generate_expr(node->left);
         char *temp    = new_temp();
-        char  buf[64];//biffer to store instruction
+        char  buf[64];
         sprintf(buf, "%s = -%s", temp, operand);
         print_instr(buf);
         free(operand);
         return temp;
-    }// -a expr ,,, out t1=-a ,,, return t1
+    }
 
-    // pre increment: ++x 
+    /* pre increment: ++x */
     if (strcmp(node->type, "pre_increment") == 0) {
         char *operand = generate_expr(node->left);
         char  buf[64];
@@ -78,7 +81,7 @@ char *generate_expr(ast *node) { //takes ast and generated intermediate code ret
         return operand;
     }
 
-    // pre decrement: --x 
+    /* pre decrement: --x */
     if (strcmp(node->type, "pre_decrement") == 0) {
         char *operand = generate_expr(node->left);
         char  buf[64];
@@ -87,7 +90,7 @@ char *generate_expr(ast *node) { //takes ast and generated intermediate code ret
         return operand;
     }
 
-    // post increment: x++ 
+    /* post increment: x++ */
     if (strcmp(node->type, "post_increment") == 0) {
         char *operand = generate_expr(node->left);
         char *temp    = new_temp();
@@ -99,7 +102,7 @@ char *generate_expr(ast *node) { //takes ast and generated intermediate code ret
         return temp;
     }
 
-    // post decrement: x-- 
+    /* post decrement: x-- */
     if (strcmp(node->type, "post_decrement") == 0) {
         char *operand = generate_expr(node->left);
         char *temp    = new_temp();
@@ -111,46 +114,46 @@ char *generate_expr(ast *node) { //takes ast and generated intermediate code ret
         return temp;
     }
 
-    // binary ops 
+    /* binary ops */
     if (strcmp(node->type, "op")         == 0 ||
         strcmp(node->type, "multi_op")   == 0 ||
         strcmp(node->type, "comp_op")    == 0 ||
         strcmp(node->type, "logical_op") == 0 ||
-        strcmp(node->type, "bit_op")     == 0) { //a+b
-        char *left  = generate_expr(node->left);//a
-        char *right = generate_expr(node->right);//b
-        char *temp  = new_temp();//t1
+        strcmp(node->type, "bit_op")     == 0) {
+        char *left  = generate_expr(node->left);
+        char *right = generate_expr(node->right);
+        char *temp  = new_temp();
         char  buf[128];
-        sprintf(buf, "%s = %s %s %s", temp, left, node->value, right);//t1=a+b
+        sprintf(buf, "%s = %s %s %s", temp, left, node->value, right);
         print_instr(buf);
         free(left);
         free(right);
         return temp;
     }
 
-    // logical not 
+    /* logical not */
     if (strcmp(node->type, "log_not_op") == 0) {
         char *operand = generate_expr(node->left);
         char *temp    = new_temp();
         char  buf[64];
-        sprintf(buf, "%s = !%s", temp, operand);//t1+!a
+        sprintf(buf, "%s = !%s", temp, operand);
         print_instr(buf);
         free(operand);
         return temp;
     }
 
-    // bitwise not 
+    /* bitwise not */
     if (strcmp(node->type, "bit_not_op") == 0) {
         char *operand = generate_expr(node->left);
         char *temp    = new_temp();
         char  buf[64];
-        sprintf(buf, "%s = ~%s", temp, operand); //t1=~a
+        sprintf(buf, "%s = ~%s", temp, operand);
         print_instr(buf);
         free(operand);
         return temp;
     }
 
-    // address of 
+    /* address of */
     if (strcmp(node->type, "address_of") == 0) {
         char *operand = generate_expr(node->left);
         char *temp    = new_temp();
@@ -164,9 +167,11 @@ char *generate_expr(ast *node) { //takes ast and generated intermediate code ret
     return NULL;
 }
 
-void generate_statement(ast *node); //tells compiler functions exists
 
-void generate_statement(ast *node) {//actual function code
+void generate_statement(ast *node);
+
+
+void generate_statement(ast *node) {
     if (!node) return;
 
     /* sequence */
@@ -191,7 +196,7 @@ void generate_statement(ast *node) {//actual function code
         return;
     }
 
-    // simple and compound assignment 
+    /* simple and compound assignment */
     if (strcmp(node->type, "assign") == 0) {
         int is_compound = (strcmp(node->value, "+=") == 0 ||
                            strcmp(node->value, "-=") == 0 ||
@@ -221,7 +226,7 @@ void generate_statement(ast *node) {//actual function code
         return;
     }
 
-    // if statement 
+    /* if statement */
     if (strcmp(node->type, "if") == 0) {
         print_section("If Statement");
         char *L1   = new_label();
@@ -239,7 +244,7 @@ void generate_statement(ast *node) {//actual function code
         return;
     }
 
-    // if-else statement 
+    /* if-else statement */
     if (strcmp(node->type, "if-else") == 0) {
         print_section("If-Else Statement");
         char *Lif  = new_label();
@@ -258,7 +263,7 @@ void generate_statement(ast *node) {//actual function code
         return;
     }
 
-    // while statement 
+    /* while statement */
     if (strcmp(node->type, "while") == 0) {
         print_section("While Loop");
         char *Lstart = new_label();
@@ -280,7 +285,7 @@ void generate_statement(ast *node) {//actual function code
         return;
     }
 
-    // return statement 
+    /* return statement */
     if (strcmp(node->type, "return") == 0) {
         print_section("Return Statement");
         char *expr = generate_expr(node->left);
@@ -291,7 +296,7 @@ void generate_statement(ast *node) {//actual function code
         return;
     }
 
-    // io statement 
+    /* io statement */
     if (strcmp(node->type, "io") == 0) {
         print_section("IO Statement");
         if (node->left) {
@@ -311,7 +316,7 @@ void generate_statement(ast *node) {//actual function code
         return;
     }
 
-    // standalone expression 
+    /* standalone expression */
     if (strcmp(node->type, "pre_increment")  == 0 ||
         strcmp(node->type, "post_increment") == 0 ||
         strcmp(node->type, "pre_decrement")  == 0 ||
@@ -321,6 +326,7 @@ void generate_statement(ast *node) {//actual function code
         return;
     }
 }
+
 
 void generate_tac(ast *root) {
     printf("\n========== Intermediate Code Generation (TAC) ==========\n");
