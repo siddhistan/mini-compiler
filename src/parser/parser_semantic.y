@@ -113,6 +113,7 @@ program:
         }
         else
             printf("\nICG skipped due to semantic errors\n");
+            return 0;
     }
     ;
 
