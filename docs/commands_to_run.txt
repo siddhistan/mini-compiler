@@ -1,0 +1,103 @@
+We run all files from root
+
+FULL COMMANDS FOR INDIVISUAL OUTPUT OF EACH PHASE
+
+1. Lexer Output.l
+
+flex src/lexer/lex_visualizer.l
+gcc lex.yy.c -o src/lexer/lexer
+cd src/lexer && ./lexer ../../tests/input2.txt
+
+
+
+
+2.  Parser output:      (lexer_parser_visualizer.l and parser_visualizer.y)
+
+flex src/lexer/lexer_parser_visualizer.l
+
+bison -d src/parser/parser_visualizer.y
+gcc lex.yy.c parser_visualizer.tab.c -o parser
+./parser tests/input4.txt
+
+
+
+
+3. for printing semantic phase output  
+
+flex src/lexer/parser_lexer.l
+bison -d src/parser/parser_semantic.y
+gcc lex.yy.c parser_semantic.tab.c \
+    src/semantic/symbol_table.c \
+    src/semantic/stubs.c \
+    -o tests/semantic
+./tests/semantic tests/input1.txt
+
+
+
+
+4. for viewing icg output
+
+flex src/lexer/parser_lexer.l
+bison -d src/parser/parser_semantic.y
+gcc lex.yy.c parser_semantic.tab.c \
+    src/semantic/semantic_icg.c \
+    src/icg/icg_visualizer.c \
+    src/semantic/stubs.c \
+    -o tests/icg
+./tests/icg tests/input1.txt
+
+
+5. for viewing code generation
+
+flex src/lexer/parser_lexer.l
+bison -d src/parser/parser_semantic.y
+gcc lex.yy.c parser_semantic.tab.c \
+    src/semantic/semantic_icg.c \
+    src/icg/icg_pipeline.c \
+    src/codegen/codegen.c \
+    -o cdg
+./cdg tests/input2.txt
+
+
+
+SHORT COMMANDS FOR INDIVISUAL OUTPUT OF EACH PHASE
+(Inside the tests folder)
+
+Lexer Phase
+./lexer input4.txt
+
+Parser Phase
+./parser input4.txt
+
+Semantic Phase
+./semantic input4.txt
+
+Icg Phase
+./icg input4.txt
+
+Code Generation Phase
+./cdg input4.txt
+
+
+
+INCREMENTAL Output (From Root)
+
+INPUT=tests/input5.txt
+
+TILL LEXER
+./tests/lexer $INPUT
+
+TILL PARSER
+./tests/lexer $INPUT && ./tests/parser $INPUT
+
+TILL SEMANTIC
+./tests/lexer $INPUT && ./tests/parser $INPUT && ./tests/semantic $INPUT
+
+TILL ICG
+./tests/lexer $INPUT && ./tests/parser $INPUT && ./tests/semantic $INPUT && ./tests/icg $INPUT
+
+TILL CODE GENERATION
+./tests/lexer $INPUT && ./tests/parser $INPUT && ./tests/semantic $INPUT && ./tests/icg $INPUT && ./tests/cdg $INPUT
+
+
+
