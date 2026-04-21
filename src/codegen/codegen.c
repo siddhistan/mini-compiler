@@ -40,8 +40,8 @@ void optimize_tac() {
                 (strcmp(op, "*") == 0 && strcmp(arg2, "1") == 0) ||
                 (strcmp(op, "/") == 0 && strcmp(arg2, "1") == 0)) {
                 
-                char new_inst[100];
-                sprintf(new_inst, "%s = %s", res, arg1); // Simplify to just "Result = Arg1"
+                char new_inst[256];
+                snprintf(new_inst, sizeof(new_inst), "%s = %s", res, arg1); // Simplify to just "Result = Arg1"
                 
                 printf("[Opt] Simplified: %s  ->  %s\n", inst, new_inst);
                 free(curr->instr);
@@ -51,8 +51,8 @@ void optimize_tac() {
             
             // 2. Strength Reduction (e.g., x = y * 2)
             else if (strcmp(op, "*") == 0 && strcmp(arg2, "2") == 0) {
-                char new_inst[100];
-                sprintf(new_inst, "%s = %s + %s", res, arg1, arg1); // Change * 2 to +
+                char new_inst[256];
+                snprintf(new_inst, sizeof(new_inst), "%s = %s + %s", res, arg1, arg1); // Change * 2 to +
                 
                 printf("[Opt] Strength Reduction: %s  ->  %s\n", inst, new_inst);
                 free(curr->instr);
@@ -75,8 +75,8 @@ void optimize_tac() {
                 else can_fold = 0; // Not a math operator
 
                 if (can_fold == 1) {
-                    char new_inst[100];
-                    sprintf(new_inst, "%s = %d", res, final_val);
+                    char new_inst[256];
+                    snprintf(new_inst, sizeof(new_inst), "%s = %d", res, final_val);
                     
                     printf("[Opt] Constant Folded: %s  ->  %s\n", inst, new_inst);
                     free(curr->instr);
