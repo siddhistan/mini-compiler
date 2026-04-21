@@ -5,7 +5,6 @@ lex.yy.c
 lexout
 a.out
 *.exe
-output
 prac.l
 prac.y
 prac.tab.c
@@ -16,4 +15,3 @@ parser_visualizer.tab.h
 parser_visualizer.tab.c
 parser_prac.tab.h
 parser_prac.tab.c
-commands_to_run.txt
