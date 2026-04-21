@@ -231,7 +231,7 @@ int check_division_by_zero(ast *root) {
 }
 
 
-void run_semantic_analysis(ast *root, declaration *head) {
+int run_semantic_analysis(ast *root, declaration *head) {
 
     /* ── Symbol Table ── */
     printf("\n========== Symbol Table ==========");
@@ -269,5 +269,7 @@ void run_semantic_analysis(ast *root, declaration *head) {
     else
         printf("  Status: FAILED — %d error(s) found\n", errors);
     printf("========================================\n\n");
+
+    return errors;
 }
 
