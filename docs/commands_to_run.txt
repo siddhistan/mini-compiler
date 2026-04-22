@@ -101,3 +101,12 @@ TILL CODE GENERATION
 
 
 
+
+COMMANDS IN BASH FILE
+
+./run_lexer.sh ../tests/input1.txt        (TILL LEXER)
+./run_parser.sh ../tests/input1.txt       (TILL PARSER) 
+./run_semantic.sh ../tests/input1.txt     (TILL SEMANTIC) 
+./run_icg.sh ../tests/input1.txt          (TILL ICG)
+./run_cdg.sh ../tests/input1.txt          (TILL CODE GENERATION)
+
