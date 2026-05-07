@@ -249,6 +249,29 @@ Then run up to whichever phase you want:
 # Till Code Generation
 ./tests/lexer $INPUT && ./tests/parser $INPUT && ./tests/semantic $INPUT && ./tests/icg $INPUT && ./tests/cdg $INPUT
 ```
+
+---
+
+### Bash Wrapper Scripts
+
+Helper scripts are included to automate Flex/Bison compilation and execution for each phase.
+
+```bash
+# Till Lexer
+./run_lexer.sh ../tests/input1.txt
+
+# Till Parser
+./run_parser.sh ../tests/input1.txt
+
+# Till Semantic Analysis
+./run_semantic.sh ../tests/input1.txt
+
+# Till ICG
+./run_icg.sh ../tests/input1.txt
+
+# Till Code Generation
+./run_cdg.sh ../tests/input1.txt
+```
  
 ---
  
